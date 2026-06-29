@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Tag: {{ tag }} — {{ site.title }}{% endblock %}
+{% block content %}
+  <wa-breadcrumb>
+    <span slot="separator">✷</span>
+    <wa-breadcrumb-item href="/">root</wa-breadcrumb-item>
+    <wa-breadcrumb-item href="/archive/">archive</wa-breadcrumb-item>
+    <wa-breadcrumb-item>{{ tag }}</wa-breadcrumb-item>
+  </wa-breadcrumb>
+
+  <section>
+    <h2>Tag: {{ tag }}</h2>
+    {% for post in posts %}
+      <wa-card appearance="filled-outlined" class="dirty-card">
+        <h3><a href="{{ post.url }}">{{ post.title }}</a></h3>
+        <p class="article-meta">
+          <time datetime="{{ post.date.isoformat() }}">{{ post.date|date }}</time>
+          <span>{{ post.reading_minutes }} min read</span>
+        </p>
+        <p>{{ post.summary }}</p>
+      </wa-card>
+    {% endfor %}
+  </section>
+{% endblock %}

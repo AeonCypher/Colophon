@@ -1,0 +1,27 @@
+{% if img.exists %}
+  {% set extra_class = img.class or fallback_class or '' %}
+  <figure
+    class="{{ ('content-image ' ~ extra_class)|trim }}"
+    style="--w: {{ img.width or 1200 }}; --h: {{ img.height or 630 }}; --fit: {{ img.fit or 'cover' }}; --position: {{ img.position or '50% 50%' }};"
+  >
+    <img
+      src="{{ img.url }}"
+      alt="{{ img.alt }}"
+      width="{{ img.width }}"
+      height="{{ img.height }}"
+      loading="{{ loading or 'lazy' }}"
+    >
+  </figure>
+{% else %}
+  {% with
+    class=(img.class or fallback_class),
+    ratio=(img.ratio or ((img.width or 1200) ~ '; --h: ' ~ (img.height or 630))),
+    label=img.label,
+    size=img.size,
+    arch=(img.fallback.arch if img.fallback else none),
+    sigil=(img.fallback.sigil if img.fallback else none),
+    stamp=(img.fallback.stamp if img.fallback else none)
+  %}
+    {% include "_placeholder.html" %}
+  {% endwith %}
+{% endif %}

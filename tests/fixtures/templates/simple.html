@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}{{ meta.title if meta is defined and meta.title else title or site.title }}{% endblock %}
+{% block description %}{{ meta.description if meta is defined and meta.description else description or summary or site.description }}{% endblock %}
+
+{% block content %}
+  <wa-breadcrumb>
+    <span slot="separator">✷</span>
+    <wa-breadcrumb-item href="/">root</wa-breadcrumb-item>
+    <wa-breadcrumb-item>{{ title or meta.title }}</wa-breadcrumb-item>
+  </wa-breadcrumb>
+
+  {% if hero %}
+    <section aria-labelledby="page-title" class="page-hero">
+      {% if hero.eyebrow %}
+        <p><wa-badge variant="brand" pill>{{ hero.eyebrow }}</wa-badge></p>
+      {% endif %}
+
+      <h2 id="page-title">{{ hero.title or title }}</h2>
+
+      {% if hero.subtitle %}
+        <p>{{ hero.subtitle }}</p>
+      {% endif %}
+    </section>
+  {% endif %}
+
+  {% if article %}
+    <section class="page-article">
+      {{ article | safe }}
+    </section>
+  {% endif %}
+{% endblock %}

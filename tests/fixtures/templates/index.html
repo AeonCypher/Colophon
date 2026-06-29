@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}{{ meta.title if meta is defined and meta.title else title or site.title }}{% endblock %}
+{% block description %}{{ meta.description if meta is defined and meta.description else description or site.description }}{% endblock %}
+
+{% block content %}
+  {% if alert %}
+    <wa-callout variant="{{ alert.variant or 'brand' }}" appearance="{{ alert.appearance or 'filled-outlined' }}">
+      {% if alert.icon %}
+        <img src="{{ alert.icon }}" alt="" slot="icon" class="callout-asset">
+      {% endif %}
+
+      {% if alert.strong %}<strong>{{ alert.strong }}</strong>{% endif %}
+      {{ alert.text }}
+    </wa-callout>
+  {% endif %}
+
+  {% if hero %}
+    <g-row class="hero-row">
+      <g-col>
+        <section aria-labelledby="hero-title">
+          {% if hero.divider %}
+            <img src="{{ hero.divider }}" alt="" class="divider">
+          {% endif %}
+
+          {% if hero.eyebrow_badges %}
+            <p>
+              {% for badge in hero.eyebrow_badges %}
+                <wa-badge variant="{{ badge.variant or 'brand' }}" pill>{{ badge.label }}</wa-badge>
+              {% endfor %}
+            </p>
+          {% elif hero.eyebrow %}
+            <p><wa-badge variant="brand" pill>{{ hero.eyebrow }}</wa-badge></p>
+          {% endif %}
+
+          <h2 id="hero-title">{{ hero.title or title }}</h2>
+
+          {% if hero.body %}
+            <p>{{ hero.body }}</p>
+          {% elif hero.subtitle %}
+            <p>{{ hero.subtitle }}</p>
+          {% endif %}
+
+          {% if hero.actions %}
+            <p>
+              {% for action in hero.actions %}
+                <wa-button
+                  variant="{{ action.variant or 'neutral' }}"
+                  appearance="{{ action.appearance or 'outlined' }}"
+                  href="{{ action.href }}"
+                >{{ action.label }}</wa-button>
+              {% endfor %}
+            </p>
+          {% endif %}
+        </section>
+      </g-col>
+
+      {% if hero.image %}
+        <g-col>
+          {% with img=image(hero.image, 'hero'), fallback_class='shrine', loading='eager' %}
+            {% include "_content_image.html" %}
+          {% endwith %}
+        </g-col>
+      {% endif %}
+    </g-row>
+  {% endif %}
+
+  {% if breadcrumb %}
+    <wa-breadcrumb>
+      {% if breadcrumb.separator %}
+        <span slot="separator">{{ breadcrumb.separator }}</span>
+      {% endif %}
+
+      {% for item in breadcrumb.entries %}
+        <wa-breadcrumb-item{% if item.href %} href="{{ item.href }}"{% endif %}>
+          {{ item.label }}
+        </wa-breadcrumb-item>
+      {% endfor %}
+    </wa-breadcrumb>
+  {% endif %}
+
+  {% if article %}
+    <section class="page-article">
+      {{ article | safe }}
+    </section>
+  {% endif %}
+
+  <g-row class="main-grid">
+    <g-col>
+      <section aria-labelledby="posts-heading">
+        <h2 id="posts-heading">{{ posts_section.heading or 'Latest transmissions' }}</h2>
+
+        {% set collection_name = posts_section.collection or 'posts' %}
+        {% set entries = collections[collection_name] if collections and collections[collection_name] is defined else [] %}
+
+        {% for entry in entries %}
+          <wa-card appearance="filled-outlined" with-media {% if loop.first and posts_section.featured %}with-footer{% endif %} class="dirty-card">
+            {% set featured_image = posts_section.featured.image or entry.cover_image %}
+            {% if loop.first and posts_section.featured and featured_image %}
+              <div slot="media">
+                {% with img=image(featured_image, 'featured'), fallback_class='post-wide', loading='lazy' %}
+                  {% include "_content_image.html" %}
+                {% endwith %}
+              </div>
+            {% endif %}
+
+            {% if entry.tags %}
+              <p>
+                {% for tag in entry.tags %}
+                  <wa-badge variant="{{ ['danger','brand','warning','success','neutral'][loop.index0 % 5] }}" pill>
+                    {{ tag }}
+                  </wa-badge>
+                {% endfor %}
+              </p>
+            {% endif %}
+
+            <h3><a href="{{ entry.url or entry.href }}">{{ entry.title }}</a></h3>
+
+            {% if entry.summary %}
+              <p>{{ entry.summary }}</p>
+            {% endif %}
+
+            <p class="article-meta">
+              {% if entry.date %}
+                <time datetime="{{ entry.date.isoformat() if entry.date.isoformat is defined else entry.date }}">
+                  {{ entry.date|date if entry.date.strftime is defined else entry.date }}
+                </time>
+              {% endif %}
+
+              {% if entry.reading_minutes %}
+                <span>{{ entry.reading_minutes }} min read</span>
+              {% endif %}
+            </p>
+
+            {% if loop.first and posts_section.featured %}
+              <wa-button slot="footer-actions" variant="brand" appearance="filled" href="{{ entry.url or entry.href }}">
+                {{ posts_section.featured.cta_label or 'read' }}
+              </wa-button>
+            {% endif %}
+          </wa-card>
+        {% endfor %}
+
+        {% if posts_section.pagination %}
+          <nav aria-label="{{ posts_section.pagination.aria_label or 'Pagination' }}" class="pager">
+            {% for item in posts_section.pagination.entries %}
+              <wa-button
+                variant="{{ item.variant or 'neutral' }}"
+                appearance="{{ item.appearance or 'outlined' }}"
+                href="{{ item.href }}"
+              >{{ item.label }}</wa-button>
+            {% endfor %}
+          </nav>
+        {% endif %}
+      </section>
+    </g-col>
+
+    {% if sidebar and sidebar.cards %}
+      <g-col class="sidebar-col">
+        <aside aria-label="{{ sidebar.aria_label or 'Sidebar' }}">
+          {% for card in sidebar.cards %}
+            <wa-card appearance="filled-outlined" class="dirty-card">
+              {% if card.corner %}
+                <img src="{{ card.corner }}" alt="" class="corner-mark">
+              {% endif %}
+
+              {% if card.avatar %}
+                <figure class="placeholder avatar" style="--w: {{ card.avatar.ratio }};">
+                  <figcaption>
+                    <strong>{{ card.avatar.label }}</strong>
+                    {% if card.avatar.size %}<span>{{ card.avatar.size }}</span>{% endif %}
+                  </figcaption>
+                </figure>
+              {% endif %}
+
+              <h2>{{ card.title }}</h2>
+
+              {% if card.type == 'profile' %}
+                <p>{{ card.text | fmt }}</p>
+
+              {% elif card.type == 'tags' and tag_links %}
+                <p>
+                  {% for tag in tag_links %}
+                    <wa-badge variant="{{ ['brand','danger','warning','neutral','success'][loop.index0 % 5] }}" pill>
+                      <a href="{{ tag.href }}">{{ tag.label }}</a>
+                    </wa-badge>
+                  {% endfor %}
+                </p>
+
+              {% elif card.type == 'altar' %}
+                <p class="asset-altar">
+                  {% for icon in card.icons %}
+                    <img src="{{ icon.src }}" alt="{{ icon.alt }}">
+                  {% endfor %}
+                </p>
+
+              {% elif card.type == 'image' %}
+                {% with img=image(card.image, 'sidebar'), fallback_class='sidebar-art', loading='lazy' %}
+                  {% include "_content_image.html" %}
+                {% endwith %}
+
+              {% elif card.type == 'mastodon_timeline' and site.mastodon.timeline.enabled %}
+                <div
+                  id="{{ site.mastodon.timeline.container_id }}"
+                  class="mt-container mastodon-timeline-shell"
+                >
+                  <div class="mt-body">
+                    <div class="mt-loading-spinner"></div>
+                  </div>
+                </div>
+                <script type="application/json" data-mastodon-timeline-config>
+                  {{ site.mastodon.timeline.options | tojson }}
+                </script>
+
+              {% else %}
+                {% if card.text %}<p>{{ card.text | fmt }}</p>{% endif %}
+              {% endif %}
+            </wa-card>
+          {% endfor %}
+        </aside>
+      </g-col>
+    {% endif %}
+  </g-row>
+{% endblock %}

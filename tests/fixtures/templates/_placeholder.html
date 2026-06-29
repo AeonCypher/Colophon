@@ -1,0 +1,9 @@
+<figure{% if class %} class="placeholder {{ class }}"{% else %} class="placeholder"{% endif %} style="--w: {{ ratio or '1200; --h: 630' }};">
+  {% if arch %}<img src="{{ arch }}" alt="" class="asset-arch">{% endif %}
+  {% if sigil %}<img src="{{ sigil }}" alt="" class="asset-sigil">{% endif %}
+  {% if stamp %}<img src="{{ stamp }}" alt="" class="asset-stamp">{% endif %}
+  <figcaption>
+    <strong>{{ label }}</strong>
+    {% if size %}<span>{{ size }}</span>{% endif %}
+  </figcaption>
+</figure>

@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "colophon"
+version = "0.1.0"
+description = "A content-driven static site generator for YAML, Markdown, and Jinja sites."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "Jinja2>=3.1",
+  "PyYAML>=6.0",
+  "mistune>=3.0",
+  "python-slugify>=3.0",
+  "python-frontmatter>=1.0",
+  "dateparser>=1.0",
+  "readability>=0.3",
+  "syntok>=1.4",
+  "beautifulsoup4>=4.0",
+  "Pillow>=10.0",
+  "paramiko>=3",
+]
+
+[project.scripts]
+colophon = "colophon.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+colophon = ["scaffold_files/**/*", "scaffold_templates/**/*"]

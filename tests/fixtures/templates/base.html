@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en" class="wa-theme-awesome wa-dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>{% block title %}{{ title or site.title }}{% endblock %}</title>
+  <meta name="description" content="{% block description %}{{ description or summary or site.description }}{% endblock %}">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="alternate" type="application/rss+xml" title="{{ site.title }} RSS" href="/feed.xml">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/neocities/element@master/element.css">
+  <link rel="stylesheet" href="/vendor/webawesome/v3.8.0/styles/themes/awesome.css">
+
+  <link rel="stylesheet" href="/vendor/webawesome/v3.8.0/styles/utilities.css">
+  
+  {% if uses_mastodon_timeline %}
+    <link rel="stylesheet" href="/vendor/mastodon-embed-timeline/mastodon-timeline.min.css">
+    <script defer src="/vendor/mastodon-embed-timeline/mastodon-timeline.umd.js"></script>
+    <script defer src="/mastodon-timeline-init.js"></script>
+  {% endif %}
+  {% if mastodon_comments and mastodon_comments.enabled %}
+    <link rel="stylesheet" href="/vendor/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script defer src="/vendor/dompurify/purify.min.js"></script>
+    <script defer src="/vendor/mastodon-comments/mastodon-comments.js"></script>
+  {% endif %}
+  <script type="module" data-webawesome="/vendor/webawesome/v3.8.0">
+    import { startLoader } from "/vendor/webawesome/v3.8.0/webawesome.loader.js";
+
+    startLoader();
+  </script>
+
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+  <a href="#content">skip the static</a>
+
+  <header>
+    {% if site.signal_line %}
+      <p class="rotline">
+        <img src="/assets/scifi-bolt-cyan.png" alt="" class="asset-icon">
+        {{ site.signal_line }}
+        <wa-spinner></wa-spinner>
+      </p>
+    {% endif %}
+
+    <g-row class="masthead">
+      <g-col>
+        <hr/><!-- <p class="kicker">{% block kicker %}{{ site.title }}{% endblock %}</p> -->
+        <h1><a href="/">{{ site.title }}</a></h1>
+        {% if site.subtitle %}<p class="subtitle">{{ site.subtitle }}</p>{% endif %}
+      </g-col>
+
+      {% if site.nav or site.sections %}
+        <g-col>
+          <nav aria-label="Main navigation">
+            {% for item in site.nav %}
+              <wa-button
+                appearance="{{ item.appearance or 'outlined' }}"
+                variant="{{ item.variant or 'neutral' }}"
+                href="{{ item.href }}"
+              >{{ item.label }}</wa-button>
+            {% endfor %}
+
+            {% if site.sections %}
+              <wa-dropdown>
+                <wa-button slot="trigger" appearance="outlined" with-caret>
+                  {{ site.sections.label or 'sections' }}
+                </wa-button>
+
+                {% for item in site.sections.entries %}
+                  <wa-dropdown-item>
+                    <wa-button
+                      appearance="{{ item.appearance or 'plain' }}"
+                      variant="{{ item.variant or 'neutral' }}"
+                      href="{{ item.href }}"
+                    >{{ item.label }}</wa-button>
+              
+                  </wa-dropdown-item>
+                {% endfor %}
+              </wa-dropdown>
+            {% endif %}
+          </nav>
+        </g-col>
+      {% endif %}
+    </g-row>
+  </header>
+
+  <main id="content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    {% if site.footer and site.footer.divider %}
+      <img src="{{ site.footer.divider }}" alt="" class="divider">
+    {% endif %}
+
+    {% if site.footer %}
+      <p class="site-footer-links">
+        {% if site.footer.brand %}
+          <span>{{ site.footer.brand }}</span>
+        {% endif %}
+
+        {% for item in site.footer.links or [] %}
+          <a href="{{ item.href }}">{{ item.label }}</a>
+        {% endfor %}
+
+        {% if site.footer.text %}
+          <span>{{ site.footer.text }}</span>
+        {% endif %}
+      </p>
+    {% endif %}
+  </footer>
+</body>
+</html>

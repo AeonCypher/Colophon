@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — {{ site.title }}{% endblock %}
+{% block description %}{{ summary }}{% endblock %}
+{% block body_class %}post-template{% endblock %}
+{% block kicker %}{{ site.title }} / transmission{% endblock %}
+
+{% block content %}
+  <wa-breadcrumb>
+    <span slot="separator">✷</span>
+    <wa-breadcrumb-item href="/">root</wa-breadcrumb-item>
+    <wa-breadcrumb-item href="/archive/">archive</wa-breadcrumb-item>
+    <wa-breadcrumb-item>{{ title }}</wa-breadcrumb-item>
+  </wa-breadcrumb>
+
+  <g-row class="article-shell">
+    <g-col class="article-main">
+      <article id="article">
+        <header class="article-hero">
+          <img src="/assets/gothic-divider-purple.png" alt="" class="divider">
+
+          {% if tags %}
+            <p>
+              {% for tag in tags %}
+                <wa-badge variant="{{ ['danger','brand','warning','success','neutral'][loop.index0 % 5] }}" pill>
+                  {{ tag }}
+                </wa-badge>
+              {% endfor %}
+            </p>
+          {% endif %}
+
+          <h2>{{ title }}</h2>
+
+          {% if summary %}
+            <p class="article-dek">{{ summary }}</p>
+          {% endif %}
+
+          <p class="article-meta">
+            {% if date %}
+              <time datetime="{{ date.isoformat() if date.isoformat is defined else date }}">
+                {{ date|date if date.strftime is defined else date }}
+              </time>
+            {% endif %}
+
+            {% if reading_minutes %}
+              <span>{{ reading_minutes }} minute read</span>
+            {% endif %}
+
+            {% if category %}
+              <span>filed under: {{ category }}</span>
+            {% endif %}
+          </p>
+
+          {% if cover_image %}
+            {% with img=image(cover_image, 'cover', post=post), fallback_class='article-cover', loading='eager' %}
+              {% include "_content_image.html" %}
+            {% endwith %}
+          {% endif %}
+        </header>
+
+        {% if content_warning %}
+          <wa-callout variant="warning" appearance="filled-outlined">
+            <img src="/assets/gothic-potion-purple.png" alt="" slot="icon" class="callout-asset">
+            <strong>Content note:</strong> {{ content_warning }}
+          </wa-callout>
+        {% endif %}
+
+        {{ article | safe }}
+
+        <footer class="article-footer">
+          <img src="/assets/gothic-divider-purple.png" alt="" class="divider">
+
+          <p class="asset-altar">
+            <img src="/assets/gothic-beetle-purple.png" alt="beetle icon">
+            <img src="/assets/gothic-quill-purple.png" alt="quill icon">
+            <img src="/assets/gothic-typewriter-purple.png" alt="typewriter icon">
+            <img src="/assets/scifi-skullbag-magenta.png" alt="skull bag icon">
+          </p>
+
+          <wa-card appearance="filled-outlined" class="dirty-card">
+            <h3>Post credits</h3>
+            <p>
+              Written by {{ site.author }}. Layout generated from Markdown, YAML, Jinja, Element CSS, and Web Awesome.
+            </p>
+          </wa-card>
+
+          <nav aria-label="Post navigation" class="post-nav">
+            <wa-button variant="brand" appearance="filled" href="/">back to index</wa-button>
+            <wa-button appearance="outlined" href="/archive/">archive</wa-button>
+          </nav>
+        </footer>
+
+        {% if mastodon_comments and mastodon_comments.enabled %}
+          <section class="mastodon-comments-section" aria-label="Mastodon comments">
+            <mastodon-comments
+              host="{{ mastodon_comments.host }}"
+              user="{{ mastodon_comments.user }}"
+              tootId="{{ mastodon_comments.toot_id }}"
+              data-theme="dark"
+              {% if mastodon_comments.filter %}filter="{{ mastodon_comments.filter }}"{% endif %}
+              {% if mastodon_comments.lang %}lang="{{ mastodon_comments.lang }}"{% endif %}
+            ></mastodon-comments>
+          </section>
+        {% endif %}
+      </article>
+    </g-col>
+
+    {% if sidebar and sidebar.cards %}
+      <g-col class="sidebar-col">
+        <aside aria-label="Post sidebar">
+          {% for card in sidebar.cards %}
+            {% if card.type == 'toc' and toc %}
+              <wa-card appearance="filled-outlined" class="dirty-card">
+                {% if card.corner %}
+                  <img src="{{ card.corner }}" alt="" class="corner-mark">
+                {% endif %}
+                <h2>{{ card.title or 'Contents' }}</h2>
+                <ol>
+                  {% for item in toc %}
+                    <li><a href="#{{ item.id }}">{{ item.text }}</a></li>
+                  {% endfor %}
+                </ol>
+              </wa-card>
+
+            {% elif card.type == 'metadata' %}
+              <wa-card appearance="filled-outlined" class="dirty-card">
+                <h2>{{ card.title or 'Metadata' }}</h2>
+                <dl class="post-facts">
+                  {% if status %}<dt>Status</dt><dd>{{ status }}</dd>{% endif %}
+                  {% if series %}<dt>Series</dt><dd>{{ series }}</dd>{% endif %}
+                  {% if tools %}<dt>Tools</dt><dd>{{ tools }}</dd>{% endif %}
+                  {% if signal %}<dt>Signal</dt><dd>{{ signal }}</dd>{% endif %}
+                </dl>
+              </wa-card>
+
+            {% elif card.type == 'image' %}
+              <wa-card appearance="filled-outlined" class="dirty-card">
+                <h2>{{ card.title }}</h2>
+                {% with img=image(card.image, 'sidebar', post=post), fallback_class='sidebar-art', loading='lazy' %}
+                  {% include "_content_image.html" %}
+                {% endwith %}
+              </wa-card>
+
+            {% elif card.type == 'related' and related %}
+              <wa-card appearance="filled-outlined" class="dirty-card">
+                <h2>{{ card.title or 'Related' }}</h2>
+                <ul>
+                  {% for item in related %}
+                    <li><a href="{{ item.url }}">{{ item.title }}</a></li>
+                  {% endfor %}
+                </ul>
+              </wa-card>
+
+            {% elif card.type == 'links' and card.items %}
+              <wa-card appearance="filled-outlined" class="dirty-card">
+                <h2>{{ card.title }}</h2>
+                <ul>
+                  {% for item in card.items %}
+                    <li><a href="{{ item.href }}">{{ item.label }}</a></li>
+                  {% endfor %}
+                </ul>
+              </wa-card>
+
+            {% elif card.type == 'custom' %}
+              <wa-card appearance="filled-outlined" class="dirty-card">
+                <h2>{{ card.title }}</h2>
+                {% if card.body %}<p>{{ card.body }}</p>{% endif %}
+                {% if card.buttons %}
+                  <p class="action-links">
+                    {% for button in card.buttons %}
+                      <a href="{{ button.href }}" class="action-link {{ button.appearance or 'outlined' }}">
+                        {{ button.label }}
+                      </a>
+                    {% endfor %}
+                  </p>
+                {% endif %}
+              </wa-card>
+            {% endif %}
+          {% endfor %}
+        </aside>
+      </g-col>
+    {% endif %}
+  </g-row>
+{% endblock %}
