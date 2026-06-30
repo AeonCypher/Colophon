@@ -602,5 +602,5 @@ The CLI commands and the public Python facade exported from `colophon` / `coloph
 When practical, behavior that is documented and working should receive a deprecation path before removal. Clearly broken, unsafe, or previously undocumented behavior may be fixed directly.
 
 # Authorship
-
-Initial Authors are a join collaboration between Shea Valentine and Aeon Cypher. 
+Authors: Shea Valentine, Aeon Cypher.
+Aeon Cypher is a pseudonymous contributor who wishes to keep her identity private.
